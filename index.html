@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Chat Websocket</title>
+</head>
+
+<body>
+  <main>
+    <div id="div">
+      <h1>Seu nome</h1>
+      <input type="text" id="username" placeholder="Nome..." required>
+      <p id="error"></p>
+      <button id="btn">Confirmar</button>
+    </div>
+    <h1>Chat Websocket</h1>
+    <ul id="messages"></ul>
+    <section>
+      <button id="change">🔁 Nome</button>
+      <form id="form">
+        <input type="text" id="message" placeholder="Conversar..." required>
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const ws = new WebSocket("ws://localhost:8081/ws")
+    const div = document.getElementById("div")
+    const btn = document.getElementById("btn")
+    const error = document.getElementById("error")
+    const change = document.getElementById("change")
+
+    var username = ""
+
+    btn.addEventListener("click", () => {
+      const nome = document.getElementById("username").value
+      if (nome.trim() !== "") {
+        username = nome
+        div.style.display = "none"
+      }
+      error.innerText = "Escreva um valor acima!"
+    })
+
+    change.addEventListener("click", () => {
+      div.style.display = "flex"
+      error.innerText = ""
+    })
+
+    ws.onmessage = function (event) {
+      const chars = "0123456789abcdef"
+      var cor = ""
+
+      for (var i = 0; i < 6; i++) {
+        var aleatoria = Math.floor(Math.random() * chars.length)
+        cor += chars.substring(aleatoria, aleatoria + 1)
+      }
+
+      const msg = JSON.parse(event.data)
+      const item = document.createElement("li")
+      item.textContent = `${msg.username}: ${msg.message}`
+      item.style.color = `#${cor}`
+      document.getElementById("messages").appendChild(item)
+    }
+
+    document.getElementById("form").onsubmit = function (event) {
+      event.preventDefault()
+
+      const message = document.getElementById("message").value
+      ws.send(JSON.stringify({ username, message }))
+    }
+  </script>
+</body>
+
+</html>

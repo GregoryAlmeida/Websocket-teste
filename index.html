@@ -206,6 +206,7 @@
 
       const message = document.getElementById("message").value
       ws.send(JSON.stringify({ username, message }))
+      message.value = ""
     }
   </script>
 </body>

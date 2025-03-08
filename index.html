@@ -165,6 +165,12 @@
   </main>
 
   <script>
+    var tempo = 0
+
+    setInterval(() => {
+      tempo += 30
+      console.log(`Servidor está rodando a ${tempo} 30 segundos!`)
+    }, 30000);
 
     const ws = new WebSocket("wss://websocket-teste.onrender.com/ws")
     const div = document.getElementById("div")

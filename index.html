@@ -99,6 +99,8 @@
       font-size: 1.5rem;
       list-style: none;
       font-weight: bolder;
+      padding: .5rem;
+      border-radius: 5px;
     }
 
     #div {
@@ -163,13 +165,8 @@
   </main>
 
   <script>
-    var tempo = 0
-    setInterval(() => {
-      tempo += 30
-      console.log(`Servidor rodando a ${tempo} segundos`)
-    }, 30000);
 
-    const ws = new WebSocket("wss://websocket-teste.onrender.com/ws")
+    const ws = new WebSocket(/*"wss://websocket-teste.onrender.com/ws"*/"ws://localhost:8081/ws")
     const div = document.getElementById("div")
     const btn = document.getElementById("btn")
     const error = document.getElementById("error")
@@ -182,6 +179,7 @@
       if (nome.trim() !== "") {
         username = nome
         div.style.display = "none"
+        ws.send(JSON.stringify({ username, message: "entrou no chat!" }))
       }
       error.innerText = "Escreva um valor acima!"
     })
@@ -192,18 +190,22 @@
     })
 
     ws.onmessage = function (event) {
-      const chars = "0123456789abcdef"
-      var cor = ""
 
-      for (var i = 0; i < 6; i++) {
-        var aleatoria = Math.floor(Math.random() * chars.length)
-        cor += chars.substring(aleatoria, aleatoria + 1)
-      }
 
       const msg = JSON.parse(event.data)
       const item = document.createElement("li")
-      item.textContent = `${msg.username}: ${msg.message}`
-      item.style.color = `#${cor}`
+      if (msg.message === "entrou no chat!") {
+        item.textContent = `${msg.username} ${msg.message}`
+        item.style.textAlign = "center"
+        item.style.backgroundColor = `#${corAleatoria()}`
+        item.style.color = "white"
+      } else {
+        item.innerHTML = `<strong style="color: #${corAleatoria()}">${msg.username}</strong><br>${msg.message}`
+        if (msg.username === username) {
+          item.style.textAlign = "right"
+        }
+
+      }
       document.getElementById("messages").appendChild(item)
     }
 
@@ -212,6 +214,18 @@
 
       const message = document.getElementById("message").value
       ws.send(JSON.stringify({ username, message }))
+    }
+
+    const corAleatoria = () => {
+      const chars = "0123456789abcdef"
+      var cor = ""
+
+      for (var i = 0; i < 6; i++) {
+        var aleatoria = Math.floor(Math.random() * chars.length)
+        cor += chars.substring(aleatoria, aleatoria + 1)
+      }
+
+      return cor
     }
   </script>
 </body>
